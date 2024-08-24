@@ -10,6 +10,4 @@ regex
 python-dotenv
 motor
 cachetools
-numpy==2.1.0
 pillow
-opencv-python
