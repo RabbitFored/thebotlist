@@ -54,6 +54,7 @@ class BotPreview:
         return generate_keyboard(btn)
     def ready(self):
         return self.title and self.username and self.pic and self.description and  self.category and  self.language and self.inline_support and  self.group_support and  self.tags
+        
 @Client.on_message(filters.command(["add", "new"]))
 async def addTheBot(client, message):
 
