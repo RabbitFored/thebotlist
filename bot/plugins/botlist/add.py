@@ -127,7 +127,7 @@ __Now send the username of the bot you want to suggest__
            
 async def verified(client, message):
            caption = "**RingtoneRobot**\n<blockquote expandable>This bot can add view counters to messages, get user, channel, group and sticker IDs, upload text and images to Telegraph and remove many system messages in groups.</blockquote>\n➖➖➖\n**Username:** @RingtoneRobot\n**Rating:** ⭐️⭐️⭐️⭐️ (4.3/5 on 130 votes)\n➖➖➖\n🧑‍💻 **Developer:** Quantum\n🗂 **Category:** Music\n🌐 **Languages:** English\n💬 **Inline:** no\n👥 **Groups:** yes\n\n#️⃣ **Tags:** #ringtone #download #song #music #ringtonerobot"
-           btn = "[1⭐️](data::st_1) [2⭐️](data::st_2) [3⭐️](data::st_3)\n[4⭐️](data::st_4) [5⭐️](data::st_5)"
+           btn = "[1⭐️](data::rt_1) [2⭐️](data::rt_2) [3⭐️](data::rt_3)\n[4⭐️](data::rt_4) [5⭐️](data::rt_5)"
            keyboard = generate_keyboard(btn)
            await message.reply_photo(
                photo=

@@ -7,7 +7,7 @@ from bot.core import utils
 from pyrogram import enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-@Client.on_callback_query(fltr.on_marker("st"))
+@Client.on_callback_query(fltr.on_marker("rt"))
 async def rate_bot(client, query):
     userid = query.from_user.id
     chatid = query.message.chat.id
