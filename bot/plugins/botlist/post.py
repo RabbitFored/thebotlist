@@ -1,20 +1,33 @@
 from pyrogram import Client
+from pyrogram.enums import listerner_types
 from bot.core import filters as fltr
 import importlib
 from pyrogram.errors import ChatAdminRequired, UserNotParticipant
-from bot import strings, ProcessManager 
+from bot import strings, ProcessManager , logger
 from bot.core import utils
 from pyrogram import enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from .db import rate, get_bot
+from .preview import BotPreview
 
+def calculate_average_rating(ratings):
+  total_users = len(ratings)
+  total_ratings = 0
+  for rating in ratings:
+      total_ratings += int(rating)
+
+  average_rating = total_ratings / total_users
+  return average_rating
 @Client.on_callback_query(fltr.on_marker("rt"))
 async def rate_bot(client, query):
     userid = query.from_user.id
     chatid = query.message.chat.id
     c = -1001475798954
+    message = query.message
     messageId = query.message.id
     data = query.data
     rating = data.split("_")[1]
+    botid = data.split("_")[2]
   
     try:
       await client.get_chat_member(chatid, userid)
@@ -23,5 +36,22 @@ async def rate_bot(client, query):
     except ChatAdminRequired:
       logger.error("Chat Admin Permission Required to perform this function")
       return
+    await rate(userid, rating, botid)
     await query.answer(f"You rated: {rating}")
-    print(userid,chatid,messageId,rating)
+  
+    b = await get_bot(botid)
+    Preview = BotPreview()
+    Preview.id = b['userid']
+    Preview.title = b['name']
+    Preview.username = b['username']
+    Preview.description = b["info"]['description']
+    Preview.rating = average_rating(b['ratings'])
+    Preview.votes = len(b['ratings'])
+  #  Preview.developer = b['developer']
+    Preview.category = b["info"]['category']
+    Preview.language = b["info"]['language']
+    Preview.inline_support = b["info"]['inline_support']
+    Preview.group_support = b["info"]['group_support']
+    Preview.tags = b["info"]['tags']
+
+    await message.edit_caption(caption=Preview.get_caption(),reply_markup= message.reply_markup)

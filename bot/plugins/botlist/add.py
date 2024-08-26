@@ -2,63 +2,25 @@ import math
 import os
 import tempfile
 from pyrogram.errors import UsernameInvalid
+import datetime
 
 from pyrogram import Client, filters
 from pyrogram.enums import ListenerTypes
 from pyrogram.types import InputMediaPhoto
 from bot.core import database as db
+from .db import add_bot
 from bot.core import filters as fltr
 from bot.core.utils import generate_keyboard
-
+from bot import logger
 from .resize import extend_uniform_background
+from .preview import BotPreview
 
-class BotPreview:
-    def __init__(self, chat):
-        self.title = chat.first_name
-        self.username = chat.username
-        self.pic = chat.photo.big_file_id if chat.photo else None
-        self.description = None
-        self.rating = 0
-        self.votes = 0
-        self.developer = None
-        self.category = None
-        self.language = "English"
-        self.inline_support = "no"
-        self.group_support = "no"
-        self.tags = None
-    def get_caption(self):
-        caption = f'''
-<b>{self.title}</b>
-<blockquote expandable>{self.description}</blockquote>
-➖➖➖
-<b>Username:</b> @{self.username}
-<b>Rating:</b> {'⭐️'* math.floor(self.rating)} <i>({self.rating}/5 on {self.votes} votes)</i>
-➖➖➖
-🧑‍💻 <b>Developer:</b> <i>{self.developer}</i>
-🗂 <b>Category:</b> <i>{self.category}</i>
-🌐 <b>Languages:</b> <i>{self.language}</i>
-💬 <b>Inline:</b> <i>{self.inline_support}</i>
-👥 <b>Groups:</b> <i>{self.group_support}</i>
 
-#️⃣ <b>Tags:</b> <i>{self.tags}</i>
-            '''
-        return caption
-    def get_keyboard(self):
-        btn = f'''
-        [Edit Title {'✅' if self.title else '❌'}](data::ed_title) [Edit Botpic {'✅' if self.pic else '❌'}](data::ed_pic)
-        [Edit Description {'✅' if self.description else '❌'}](data::ed_description) [Edit Language {'✅' if self.language else '❌'}](data::ed_language)
-        [Edit Category {'✅' if self.category else '❌'}](data::ed_category) [Edit Tags {'✅' if self.tags else '❌'}](data::ed_tags)
 
-        [SUBMIT](data::submit)
-                '''
-        return generate_keyboard(btn)
-    def ready(self):
-        return self.title and self.username and self.pic and self.description and  self.category and  self.language and self.inline_support and  self.group_support and  self.tags
-        
 @Client.on_message(filters.command(["add", "new"]))
 async def addTheBot(client, message):
 
-    warn = f'''
+    warn = '''
 **Before sumbitting the bot, make sure that your bot follows these rules:**
 1) It should not contain any 18+ or other illegal contents.
 2) Bots made with tools like manybots, livegram are not allowed.
@@ -66,20 +28,22 @@ async def addTheBot(client, message):
 4) Bots which promote illegal activities are not allowed
 
 __Now send the username of the bot you want to suggest__
-    '''
+'''
     botid = await message.chat.ask(warn, reply_to_message_id = message.id)
     fetch_msg = await botid.reply_text("Fetching info...", quote = True)
     try:
         chat = await client.get_users(botid.text)
     except UsernameInvalid:
         return await fetch_msg.edit("❌ Username invalid.\n\nSend your bot's username in the format: @mailableBot")
-    #if not chat.is_bot:
-   #    return await message.reply("This is not a bot.")
-
-    
+    if not chat.is_bot:
+       return await message.reply("This is not a bot.")
 
    
-    Preview = BotPreview(chat)
+    Preview = BotPreview()
+    Preview.id = chat.id
+    Preview.title = chat.first_name
+    Preview.username = chat.username
+    Preview.pic = chat.photo.big_file_id if chat.photo else None
 
     with tempfile.TemporaryDirectory(prefix=f"{message.from_user.id}_") as temp_dir:
         if chat.photo:
@@ -97,13 +61,32 @@ __Now send the username of the bot you want to suggest__
         
         post = await message.reply_photo(photo=photo_path,caption=Preview.get_caption(),reply_markup= Preview.get_keyboard())
     while True:
+      try:
         media = None
         ask = await client.listen(message_id = post.id,listener_type =ListenerTypes.CALLBACK_QUERY)
         await ask.answer()
         if ask.data == "submit":
             if Preview.ready():
-
-              await client.send_photo("thebotslist", photo=post.photo.file_id,caption=Preview.get_caption(),reply_markup=generate_keyboard("[1⭐️](data::rt_1) [2⭐️](data::rt_2) [3⭐️](data::rt_3)\n[4⭐️](data::rt_4) [5⭐️](data::rt_5)"))
+              data = {
+                  "userid" : chat.id,
+                  "name": chat.first_name,
+                  "username": chat.username,
+                  "dc": chat.dc_id if chat.dc_id else 0,
+                  "preview_img": post.photo.file_id,
+                  "submitted_by": ask.from_user.id,
+                  "submitted_on": datetime.datetime.now(),
+                  "info": {
+                      "description": Preview.description,
+                      #developer = b['developer']
+                      "category": Preview.category,
+                      "language" : Preview.language,
+                      "inline_support" : Preview.inline_support,
+                      "group_support" : Preview.group_support,
+                      "tags" : Preview.tags
+                  }
+              }
+              await add_bot(data)
+              await client.send_photo(-1002233681213, photo=post.photo.file_id,caption=Preview.get_caption(),reply_markup=generate_keyboard(f"[Approve ✅](data::approve_{Preview.id}_{ask.from_user.id})\n[Reject ❌](data::reject_{Preview.id}_{ask.from_user.id})") , reply_to_message_id =32016)
               return await ask.message.reply("submited successfully")
             else:
                  await message.reply("❌ Fill all fields to subit bot")
@@ -136,7 +119,8 @@ __Now send the username of the bot you want to suggest__
             await post.edit_media(media=InputMediaPhoto(media, caption=Preview.get_caption()),reply_markup= Preview.get_keyboard())
         else:
             await post.edit_caption(caption=Preview.get_caption(),reply_markup= Preview.get_keyboard())
-        
+      except Exception as e:
+          logger.info(f"{e}")
    
    
            
