@@ -50,12 +50,15 @@ __Now send the username of the bot you want to suggest__
     botexist = bool(await get_bot(chat.id))
     if botexist:
         return await fetch_msg.edit_text("❌ Sorry, This bot already exists in our archive.")
+    
     Preview = BotPreview()
     Preview.id = chat.id
     Preview.title = chat.first_name
     Preview.username = chat.username
     Preview.pic = chat.photo.big_file_id if chat.photo else None
-    
+    #dev = await message.chat.ask("Send the developer's username", reply_markup=generate_keyboard("[Yes](data::yes) [No](data::no)"))
+   # if dev.text == "yes":
+    #    Preview.developer = ""
     with tempfile.TemporaryDirectory(
             prefix=f"{message.from_user.id}_") as temp_dir:
         if chat.photo:
@@ -83,6 +86,9 @@ __Now send the username of the bot you want to suggest__
             await ask.answer()
 
             if ask.data == "submit":
+                botexist = bool(await get_bot(chat.id))
+                if botexist:
+                    return await fetch_msg.edit_text("❌ Sorry, This bot already exists in our archive.")
                 if Preview.ready():
                     data = {
                         "userid": chat.id,
@@ -123,7 +129,7 @@ __Now send the username of the bot you want to suggest__
                         reply_to_message_id=32016)
                     return await ask.message.reply("submited successfully")
                 else:
-                    await message.reply("❌ Fill all fields to subit bot")
+                    await message.reply("❌ Fill all fields to submit bot")
                 await ask_it.sent_message.delete()
             elif ask.data == "ed_supg":
                 t = "no" if Preview.group_support == "yes" else "yes"

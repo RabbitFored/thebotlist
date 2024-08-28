@@ -1,5 +1,6 @@
 import math
 from bot.core.utils import generate_keyboard
+new_line = "\n"
 class BotPreview:
   def __init__(self):
       self.id = None
@@ -9,7 +10,7 @@ class BotPreview:
       self.description = None
       self.rating = 0
       self.votes = 0
-      self.developer = None
+      self.developer = "None"
       self.category = None
       self.languages = ["English"]
       self.inline_support = "no"
@@ -23,8 +24,7 @@ class BotPreview:
 <b>Username:</b> @{self.username}
 <b>Rating:</b> {'⭐️'* math.floor(self.rating)} <i>({self.rating}/5 on {self.votes} votes)</i>
 ➖➖➖
-{'🧑‍💻 <b>Developer:</b> <i>' + self.developer + '</i> ' if self.developer else ''}
-🗂 <b>Category:</b> <i>{self.category}</i>
+{'🧑‍💻 <b>Developer:</b> <i>' + self.developer + '</i>' + new_line if self.developer else ''}🗂 <b>Category:</b> <i>{self.category}</i>
 🌐 <b>Languages:</b> <i>{' '.join(self.languages) if self.languages else None}</i>
 💬 <b>Inline:</b> <i>{self.inline_support}</i>
 👥 <b>Groups:</b> <i>{self.group_support}</i>

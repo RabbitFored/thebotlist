@@ -12,11 +12,12 @@ authors:
 #commons
 start_txt: |-
    **Hello {user} 👋 !
-   I am a simple Telegram Bot.\n
+   I am Gram Search Bot.
+   Add your bot to @GramBotList using me.
+   
    Hit /help to know more on using me.**
 start_btn: |-
    [Suggest a bot](data::cf_botlist.addTheBot)
-   [HELP](data::ct_help)
 
 help_txt: |-
    **Here is an detailed guide on using me.**
@@ -26,6 +27,8 @@ help_txt: |-
    /help : Send you this text!
    /about : About me
    /donate : Donate us
+
+   /new : Suggest a new bot
 help_btn: |-
    [Get Help](url::{group_url})
 ##extended help msg for bot administrators
@@ -36,7 +39,7 @@ admin_help_txt: |-
 
 about_txt: |+
    **About Me :**
-   \n  - **Name**      : Telegram-Bot
+   \n  - **Name**      : GramSearchBot
    \n  - **Creator**   : @theostrich
    \n  - **Language**  : Python 3
    \n  - **Library**   : [Pyrogram](https://pyrogram.org/)
@@ -82,18 +85,7 @@ force_sub_btn: |-
    [Subscribe](url::{channel_url})
 
 premium_txt: |-
-   The bot offers a free limit to set 3 mails
-
-   **Need more?** Get a Premium subscription is for only 50stars/month
-
-   **The Premium subscription includes:**
-   __
-    - Acquire upto 7 mail IDs.        
-    - Set custom domains*
-    - send mails (from default domains)
-   __ 
-
-   *domain not included
+   This Bot doesn't have a premium subscription
 premium_btn: |-
-   [Upgrade To Premium](data::cf_subscription.upgrade)
+   [Go back](data::exc)
 #plugins/admin
