@@ -11,13 +11,14 @@ from .db import rate, get_bot
 from .preview import BotPreview
 
 def calculate_average_rating(ratings):
+  print(ratings)
   total_users = len(ratings)
   total_ratings = 0
-  for rating in ratings:
+  for user, rating in ratings.items():
       total_ratings += int(rating)
 
   average_rating = total_ratings / total_users
-  return average_rating
+  return round(average_rating,1)
 @Client.on_callback_query(fltr.on_marker("rt"))
 async def rate_bot(client, query):
     userid = query.from_user.id
@@ -44,14 +45,13 @@ async def rate_bot(client, query):
     Preview.id = b['userid']
     Preview.title = b['name']
     Preview.username = b['username']
-    Preview.description = b["info"]['description']
-    Preview.rating = average_rating(b['ratings'])
+    Preview.description = b["info"]['about']['description']
+    Preview.rating = calculate_average_rating(b['ratings'])
     Preview.votes = len(b['ratings'])
-  #  Preview.developer = b['developer']
-    Preview.category = b["info"]['category']
-    Preview.language = b["info"]['language']
-    Preview.inline_support = b["info"]['inline_support']
-    Preview.group_support = b["info"]['group_support']
-    Preview.tags = b["info"]['tags']
-
+    Preview.category = b["info"]['about']['category']
+    Preview.language = b["info"]['about']['languages']
+    Preview.inline_support = b["info"]['features']['inline_support']
+    Preview.group_support = b["info"]['features']['group_support']
+    Preview.tags = b["info"]['about']['tags']
+    
     await message.edit_caption(caption=Preview.get_caption(),reply_markup= message.reply_markup)
