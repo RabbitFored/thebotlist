@@ -10,7 +10,7 @@ class BotPreview:
       self.description = None
       self.rating = 0
       self.votes = 0
-      self.developer = "None"
+      self.developer = None
       self.category = None
       self.languages = ["English"]
       self.inline_support = "no"
